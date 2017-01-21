@@ -65,17 +65,28 @@ class MixedPipe {
       firstStream.write(value);
       firstStream.end();
     } else {
-      var ret = segment.call(ctxt, value, function(err, newValue) {
+      var ret;
+      var asyncCallback = function(error, newValue) {
+        if (error) {
+          return cb({error, step, value, ctxt});
+        }
         self.log('\tasync ret', newValue);
         self.next(step+1, newValue, ctxt, cb);
-      });
+      }
+      try {
+        ret = segment.call(ctxt, value, asyncCallback);
+      } catch (error) {
+        return cb({error, step, value, ctxt});
+      }
       if ('undefined'==typeof ret) {
         // it was async, do nothing!
       } else if (ret instanceof Promise) {
         ret.then(function(newValue) {
           self.log('\tpromise ret', newValue)
           self.next(step+1, newValue, ctxt, cb);
-        });
+        }).catch(function(error) {
+          return cb({error, step, value, ctxt});
+        })
       } else {
         self.log('\tdirect result', ret)
         self.next(step+1, ret, ctxt, cb);
