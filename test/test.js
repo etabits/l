@@ -33,11 +33,11 @@ var pe = new MixedPipe([
 ]);
 pe.execute(5)
 .then(function (result) {
-  console.log('Promise then:', result)
+  console.log('Promise then:', result);
 })
 .catch(function (error) {
   console.log('Promise catch:', error);
 })
 pe.execute(6, {preset: 'CONTEXT'}, function(err, result) {
-  console.log('Async callback:', err, result)
+  console.log('Async callback:', err, result);
 })
