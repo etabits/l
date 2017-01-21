@@ -28,5 +28,10 @@ var pe = new MixedPipe([
     return val;
   },
 ]);
-pe.execute(5);
-pe.execute(6, {preset: 'CONTEXT'});
+pe.execute(5)
+.then(function (result) {
+  console.log('Promise then:', result)
+})
+pe.execute(6, {preset: 'CONTEXT'}, function(err, result) {
+  console.log('Async callback:', err, result)
+})
