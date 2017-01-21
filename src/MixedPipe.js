@@ -8,23 +8,21 @@ class MixedPipe {
 
   execute(value) {
     this.log('executing on', value)
-    this.value = value;
-    this.step = 0;
-    this.next()
+    this.next(0, value)
   }
 
-  next () {
+  next (step, value) {
     var self = this;
-    var step = this.segments[this.step];
-    if (!step) {
-      self.log('finished!', this.value);
+    var segment = this.segments[step];
+    if (!segment) {
+      self.log('finished!', value);
       return;
     }
-    self.log(this.step, step.name || 'anon', this.value);
-    if (step.stream) {
-      var firstStream = step.stream();
+    self.log(step, segment.name || 'anon', value);
+    if (segment.stream) {
+      var firstStream = segment.stream();
       var lastStream = firstStream;
-      for (var streamsEnd = this.step + 1;
+      for (var streamsEnd = step + 1;
         this.segments[streamsEnd] && this.segments[streamsEnd].stream;
         ++streamsEnd) {
         var streamStep = this.segments[streamsEnd];
@@ -43,19 +41,15 @@ class MixedPipe {
         }
       })
       lastStream.on('end', function() {
-        self.value = buf;
-        self.log('\tstream end', self.value.toString('hex'))
-        self.step+=(streamsEnd-self.step);
-        self.next();
+        self.log('\tstream end', buf.toString('hex'));
+        self.next(streamsEnd, buf);
       })
-      firstStream.write(this.value);
+      firstStream.write(value);
       firstStream.end();
     } else {
-      var ret = step(this.value, function(err, newValue) {
-        self.log('\tasync ret', newValue)
-        self.value = newValue
-        self.step++;
-        self.next();
+      var ret = segment(value, function(err, newValue) {
+        self.log('\tasync ret', newValue);
+        self.next(step+1, newValue);
       });
       // console.log(self.step, ret)
       if ('undefined'==typeof ret) {
@@ -63,20 +57,13 @@ class MixedPipe {
       } else if (ret instanceof Promise) {
         ret.then(function(newValue) {
           self.log('\tpromise ret', newValue)
-          self.value = newValue;
-          self.step++;
-          self.next();
+          self.next(step+1, newValue);
         });
-
       } else {
         self.log('\tdirect result', ret)
-        self.value = ret
-        self.step++;
-        self.next();
-
+        self.next(step+1, ret);
       }
     }
-    return;
   }
 
   log() {}

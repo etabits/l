@@ -21,5 +21,7 @@ var pe = new MixedPipe([
   {
     stream: ()=>crypto.createHash('md5')
   },
+  (val)=>val.toString('base64'),
 ]);
-pe.execute(5)
+pe.execute(5);
+pe.execute(6);
