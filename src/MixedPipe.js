@@ -38,16 +38,19 @@ class MixedPipe {
     }
     self.log(step, segment.name || 'anon', value);
     if (segment.stream) {
-      var firstStream = segment.stream();
-      var lastStream = firstStream;
-      for (var streamsEnd = step + 1;
+      var firstStream, lastStream;
+      for (var streamsEnd = step;
         this.segments[streamsEnd] && this.segments[streamsEnd].stream;
         ++streamsEnd) {
-        var streamStep = this.segments[streamsEnd];
-        var anotherStream = streamStep.stream();
-        lastStream.pipe(anotherStream)
-        lastStream = anotherStream;
-        self.log('found another stream at ', streamsEnd, 'name', streamStep.name)
+        var streamSegment = this.segments[streamsEnd];
+        var currentStream = streamSegment.stream();
+        if (!firstStream) {
+          firstStream = currentStream;
+        } else {
+          lastStream.pipe(currentStream);
+          self.log('found another stream at', streamsEnd, 'name=', streamSegment.name)
+        }
+        lastStream = currentStream;
       }
 
       var buf;
