@@ -2,6 +2,9 @@
 const crypto = require('crypto');
 
 var MixedPipe = require('../src/MixedPipe');
+MixedPipe.prototype.log = function() {
+  console.log.apply(console,arguments)
+}
 
 var pe = new MixedPipe([
   (val)=> val*2,
@@ -19,5 +22,4 @@ var pe = new MixedPipe([
     stream: ()=>crypto.createHash('md5')
   },
 ]);
-pe.debug = true;
 pe.execute(5)

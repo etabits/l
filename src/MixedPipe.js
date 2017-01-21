@@ -79,10 +79,7 @@ class MixedPipe {
     return;
   }
 
-  log() {
-    if (!this.debug) return;
-    console.log.apply(console,arguments)
-  }
+  log() {}
 }
 
 module.exports = MixedPipe;
