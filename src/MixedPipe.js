@@ -6,12 +6,12 @@ class MixedPipe {
     this.segments = segments;
   }
 
-  execute(value) {
+  execute(value, ctxt) {
     this.log('executing on', value)
-    this.next(0, value)
+    this.next(0, value, ctxt || {})
   }
 
-  next (step, value) {
+  next (step, value, ctxt) {
     var self = this;
     var segment = this.segments[step];
     if (!segment) {
@@ -42,26 +42,25 @@ class MixedPipe {
       })
       lastStream.on('end', function() {
         self.log('\tstream end', buf.toString('hex'));
-        self.next(streamsEnd, buf);
+        self.next(streamsEnd, buf, ctxt);
       })
       firstStream.write(value);
       firstStream.end();
     } else {
-      var ret = segment(value, function(err, newValue) {
+      var ret = segment.call(ctxt, value, function(err, newValue) {
         self.log('\tasync ret', newValue);
-        self.next(step+1, newValue);
+        self.next(step+1, newValue, ctxt);
       });
-      // console.log(self.step, ret)
       if ('undefined'==typeof ret) {
         // it was async, do nothing!
       } else if (ret instanceof Promise) {
         ret.then(function(newValue) {
           self.log('\tpromise ret', newValue)
-          self.next(step+1, newValue);
+          self.next(step+1, newValue, ctxt);
         });
       } else {
         self.log('\tdirect result', ret)
-        self.next(step+1, ret);
+        self.next(step+1, ret, ctxt);
       }
     }
   }
