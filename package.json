@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "nyc ava"
+    "test": "nyc ava",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
   "homepage": "https://github.com/etabits/node-line#readme",
   "devDependencies": {
     "ava": "^0.17.0",
+    "coveralls": "^2.11.15",
     "nyc": "^10.1.2"
   }
 }
