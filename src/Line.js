@@ -1,4 +1,5 @@
 'use strict';
+var stream = require('stream');
 
 class Line {
 
@@ -36,6 +37,7 @@ class Line {
       cb(null, value)
       return;
     }
+    var isReadableStream = value instanceof stream.Readable;
     self.log(step, segment.name || 'anon', value);
     if (segment.stream) {
       var firstStream, lastStream;
@@ -57,9 +59,20 @@ class Line {
         self.log('\tstream end', buf.toString('hex'));
         self.next(streamsEnd, buf, ctxt, cb);
       })
-      firstStream.write(value);
-      firstStream.end();
+
+      if (isReadableStream) {
+        value.pipe(firstStream)
+      } else {
+        firstStream.write(value);
+        firstStream.end();
+      }
     } else {
+      if (isReadableStream) {
+        bufferStream(value, function(err, buf) {
+          self.next(step, buf, ctxt, cb);
+        })
+        return;
+      }
       var ret;
       var asyncCallback = function(error, newValue) {
         if (error) {
