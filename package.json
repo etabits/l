@@ -1,0 +1,33 @@
+{
+  "name": "line",
+  "version": "0.1.0",
+  "description": "Mix Async/Sync code with Promises and Streams in a reusable unified line",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/etabits/node-line.git"
+  },
+  "keywords": [
+    "sync",
+    "async",
+    "promise",
+    "stream",
+    "flow",
+    "control"
+  ],
+  "author": "Hasan Arous <arous.hasan@gmail.com> (http://www.etabits.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/etabits/node-line/issues"
+  },
+  "homepage": "https://github.com/etabits/node-line#readme",
+  "devDependencies": {
+    "ava": "^0.17.0"
+  }
+}
