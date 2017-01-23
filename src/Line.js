@@ -53,15 +53,7 @@ class Line {
         lastStream = currentStream;
       }
 
-      var buf;
-      lastStream.on('data', function(data) {
-        if (!buf) {
-          buf = Buffer.from(data);
-        } else {
-          buf = Buffer.concat([buf, data]);
-        }
-      })
-      lastStream.on('end', function() {
+      bufferStream(lastStream, function(err, buf) {
         self.log('\tstream end', buf.toString('hex'));
         self.next(streamsEnd, buf, ctxt, cb);
       })
@@ -101,3 +93,17 @@ class Line {
 }
 
 module.exports = Line;
+
+var bufferStream = function(stream, done) {
+  var buf;
+  stream.on('data', function(data) {
+    if (!buf) {
+      buf = Buffer.from(data);
+    } else {
+      buf = Buffer.concat([buf, data]);
+    }
+  })
+  stream.on('end', function() {
+    done(null, buf)
+  })
+}
