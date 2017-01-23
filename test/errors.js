@@ -1,32 +1,7 @@
 'use strict';
 import test from 'ava';
-const crypto = require('crypto');
-
 var Line = require('../src/Line');
 
-var l = new Line([
-  function add4(val, done) {
-    // callNonExistentFunction(); // Uncomment to test catchable errors
-    this.testContext = `HI! ${val}`;
-    setTimeout(function() {
-      // return done('Async Error') // Uncomment to test async errors
-      done(null, val+4)
-    },1)
-  },
-  (val)=>'' + val,
-  {
-    stream: ()=>crypto.createHash('sha1')
-  },
-  {
-    name: 'md5sum',
-    stream: ()=>crypto.createHash('md5')
-  },
-  (val)=>val.toString('base64'),
-  function ctxt(val) {
-    this.final = val;
-    return this;
-  },
-]);
 test('promise rejection', t => {
   t.plan(1);
   const l = new Line([
