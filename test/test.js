@@ -1,7 +1,7 @@
 'use strict';
 const crypto = require('crypto');
 
-var Line = require('../src/MixedPipe');
+var Line = require('../src/Line');
 Line.prototype.log = function() {
   console.log.apply(console,arguments)
 }
