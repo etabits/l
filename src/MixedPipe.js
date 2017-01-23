@@ -1,6 +1,6 @@
 'use strict';
 
-class MixedPipe {
+class Line {
 
   constructor(segments) {
     this.segments = segments;
@@ -100,4 +100,4 @@ class MixedPipe {
   log() {}
 }
 
-module.exports = MixedPipe;
+module.exports = Line;

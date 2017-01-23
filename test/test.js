@@ -1,12 +1,12 @@
 'use strict';
 const crypto = require('crypto');
 
-var MixedPipe = require('../src/MixedPipe');
-MixedPipe.prototype.log = function() {
+var Line = require('../src/MixedPipe');
+Line.prototype.log = function() {
   console.log.apply(console,arguments)
 }
 
-var pe = new MixedPipe([
+var l = new Line([
   (val)=> val*2,
   // (val)=> Promise.reject('TestRejection!'), // Uncomment to test promise errors
   (val)=> Promise.resolve(val*3),
@@ -23,6 +23,7 @@ var pe = new MixedPipe([
     stream: ()=>crypto.createHash('sha1')
   },
   {
+    name: 'md5sum',
     stream: ()=>crypto.createHash('md5')
   },
   (val)=>val.toString('base64'),
@@ -31,13 +32,13 @@ var pe = new MixedPipe([
     return val;
   },
 ]);
-pe.execute(5)
+l.execute(5)
 .then(function (result) {
   console.log('Promise then:', result);
 })
 .catch(function (error) {
   console.log('Promise catch:', error);
 })
-pe.execute(6, {preset: 'CONTEXT'}, function(err, result) {
+l.execute(6, {preset: 'CONTEXT'}, function(err, result) {
   console.log('Async callback:', err, result);
 })
