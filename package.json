@@ -2,7 +2,7 @@
   "name": "line",
   "version": "0.1.0",
   "description": "Mix Async/Sync code with Promises and Streams in a reusable unified line",
-  "main": "index.js",
+  "main": "src/Line.js",
   "directories": {
     "test": "test"
   },
