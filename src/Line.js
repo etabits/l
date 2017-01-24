@@ -79,35 +79,36 @@ class Line {
         })
         return;
       }
-      var ret;
-      var asyncCallback;
-      if ('async'==segment.type || 'auto'==segment.type) {
-        asyncCallback = function(error, newValue) {
-          if (error) {
-            return cb({error, step, value, ctxt});
-          }
-          self.log('\tasync ret', newValue);
-          self.next(step+1, newValue, ctxt, cb);
-        }
-      }
-      try {
-        ret = segment.func.call(ctxt, value, asyncCallback);
-      } catch (error) {
-        return cb({error, step, value, ctxt});
-      }
-      if (('undefined'==typeof ret && 'auto'==segment.type) || 'async'==segment.type) {
-        // it was async, do nothing!
-      } else if (ret instanceof Promise) {
-        ret.then(function(newValue) {
-          self.log('\tpromise ret', newValue)
-          self.next(step+1, newValue, ctxt, cb);
-        }).catch(function(error) {
+      Line.resolveSegment(segment, value, ctxt, function(error, newValue, inferredType) {
+        if (error) {
           return cb({error, step, value, ctxt});
-        })
-      } else {
-        self.log('\tdirect result', ret)
-        self.next(step+1, ret, ctxt, cb);
-      }
+        }
+        self.log(`\t${inferredType} ret`, newValue)
+        self.next(step+1, newValue, ctxt, cb);
+
+      })
+    }
+  }
+
+  static resolveSegment(segment, value, ctxt, done) {
+    var ret;
+    var asyncCallback;
+    if ('async'==segment.type || 'auto'==segment.type) {
+      asyncCallback = (error, value)=> done(error, value, 'async');
+    }
+    try {
+      ret = segment.func.call(ctxt, value, asyncCallback);
+    } catch (error) {
+      return done(error);
+    }
+    if (('undefined'==typeof ret && 'auto'==segment.type) || 'async'==segment.type) {
+      // it was async, do nothing!
+    } else if (ret instanceof Promise) {
+      ret
+      .then((newValue)=>done(null, newValue, 'promise'))
+      .catch((error)=> done(error))
+    } else {
+      done(null, ret, 'sync');
     }
   }
 
