@@ -1,5 +1,7 @@
 'use strict';
-var stream = require('stream');
+const stream = require('stream');
+
+const utilities = require('./utilities')
 
 class Line {
 
@@ -42,8 +44,9 @@ class Line {
       return;
     }
     var isReadableStream = value instanceof stream.Readable;
+    var segmentType = utilities.segmentType(segment)
     self.log(step, segment.name || 'anon', value);
-    if (segment.stream) {
+    if ('stream'==segmentType) {
       var firstStream, lastStream;
       for (var streamsEnd = step;
         this.segments[streamsEnd] && this.segments[streamsEnd].stream;
@@ -59,7 +62,7 @@ class Line {
         lastStream = currentStream;
       }
 
-      bufferStream(lastStream, function(err, buf) {
+      utilities.bufferStream(lastStream, function(err, buf) {
         self.log('\tstream end', buf.toString('hex'));
         self.next(streamsEnd, buf, ctxt, cb);
       })
@@ -72,7 +75,7 @@ class Line {
       }
     } else {
       if (isReadableStream) {
-        bufferStream(value, function(err, buf) {
+        utilities.bufferStream(value, function(err, buf) {
           self.next(step, buf, ctxt, cb);
         })
         return;
@@ -111,16 +114,3 @@ class Line {
 
 module.exports = Line;
 
-var bufferStream = function(stream, done) {
-  var buf;
-  stream.on('data', function(data) {
-    if (!buf) {
-      buf = Buffer.from(data);
-    } else {
-      buf = Buffer.concat([buf, data]);
-    }
-  })
-  stream.on('end', function() {
-    done(null, buf)
-  })
-}
