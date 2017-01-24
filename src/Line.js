@@ -6,7 +6,7 @@ const utilities = require('./utilities')
 class Line {
 
   constructor(segments) {
-    this.segments = segments;
+    this.segments = segments.map(utilities.expandSegment);
   }
 
   execute(value, ctxt, cb) {
@@ -44,9 +44,8 @@ class Line {
       return;
     }
     var isReadableStream = value instanceof stream.Readable;
-    var segmentType = utilities.segmentType(segment)
     self.log(step, segment.name || 'anon', value);
-    if ('stream'==segmentType) {
+    if ('stream'==segment.type) {
       var firstStream, lastStream;
       for (var streamsEnd = step;
         this.segments[streamsEnd] && this.segments[streamsEnd].stream;
@@ -82,7 +81,7 @@ class Line {
       }
       var ret;
       var asyncCallback;
-      if ('async'==segmentType || 'auto'==segmentType) {
+      if ('async'==segment.type || 'auto'==segment.type) {
         asyncCallback = function(error, newValue) {
           if (error) {
             return cb({error, step, value, ctxt});
@@ -92,11 +91,11 @@ class Line {
         }
       }
       try {
-        ret = segment.call(ctxt, value, asyncCallback);
+        ret = segment.func.call(ctxt, value, asyncCallback);
       } catch (error) {
         return cb({error, step, value, ctxt});
       }
-      if ('undefined'==typeof ret) {
+      if (('undefined'==typeof ret && 'auto'==segment.type) || 'async'==segment.type) {
         // it was async, do nothing!
       } else if (ret instanceof Promise) {
         ret.then(function(newValue) {
