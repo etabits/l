@@ -47,3 +47,14 @@ test('concurrent execution', async t=> {
     testContext: 'HI! 42',
   });
 });
+test.cb('omitted context', t => {
+  t.plan(2);
+  l.execute(6, function(err, result) {
+    t.is(err, null)
+    t.deepEqual(result, {
+      final: 'tXaGpbo9OuZfxOCD1qrKaA==',
+      testContext: 'HI! 36',
+    });
+    t.end();
+  })
+});

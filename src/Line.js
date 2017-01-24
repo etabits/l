@@ -8,6 +8,10 @@ class Line {
   }
 
   execute(value, ctxt, cb) {
+    if ('function'==typeof ctxt) {
+      cb = ctxt;
+      ctxt = {};
+    }
     this.log('executing on', value)
     var p;
     if (!cb) {
