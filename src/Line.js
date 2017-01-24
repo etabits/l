@@ -81,12 +81,15 @@ class Line {
         return;
       }
       var ret;
-      var asyncCallback = function(error, newValue) {
-        if (error) {
-          return cb({error, step, value, ctxt});
+      var asyncCallback;
+      if ('async'==segmentType || 'auto'==segmentType) {
+        asyncCallback = function(error, newValue) {
+          if (error) {
+            return cb({error, step, value, ctxt});
+          }
+          self.log('\tasync ret', newValue);
+          self.next(step+1, newValue, ctxt, cb);
         }
-        self.log('\tasync ret', newValue);
-        self.next(step+1, newValue, ctxt, cb);
       }
       try {
         ret = segment.call(ctxt, value, asyncCallback);
