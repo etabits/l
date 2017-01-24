@@ -34,6 +34,15 @@ l.execute(Math.E).then(result=> { // as a promise
 ```
 For a more complete example that involves streams, please check [examples](https://github.com/etabits/node-line/tree/master/examples) and [tests](https://github.com/etabits/node-line/tree/master/test).
 
+## Running tests
+```sh
+npm test
+```
+
+## Compatibility
+* Line is compatible with [Node.js v6 LTS](https://nodejs.org/en/download/) and [Node.js v7 Current](https://nodejs.org/en/download/current/)
+* Half the tests fail when using Node.js v5 and v4!
+
 ## Next (Roadmap)
 * Ability to split and rejoin a stream (parallel execution)
 * Return a readable stream when last element is a stream (optional)
