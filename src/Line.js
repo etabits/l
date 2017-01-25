@@ -1,100 +1,105 @@
-'use strict';
-const stream = require('stream');
+'use strict'
+const stream = require('stream')
 
 const utilities = require('./utilities')
 
 class Line {
 
-  constructor(segments) {
-    this.segments = segments.map(utilities.expandSegment);
+  constructor (segments) {
+    this.segments = segments.map(utilities.expandSegment)
   }
 
-  execute(value, ctxt, cb) {
-    if ('function'==typeof ctxt) {
-      cb = ctxt;
-      ctxt = {};
+  execute (value, ctxt, cb) {
+    if (typeof ctxt === 'function') {
+      cb = ctxt
+      ctxt = {}
     }
     this.log('>executing on:', value, `(${this.segments.length} segments)`)
-    var p;
+    var p
     if (!cb) {
-      var resolve, reject;
-      cb = function(err, result) {
+      var rs, rj
+      cb = function (err, result) {
         if (err) {
-          reject(err);
+          rj(err)
         } else {
-          resolve(result);
+          rs(result)
         }
       }
-      p = new Promise(function(rs, rj){
-        resolve = rs;
-        reject = rj;
-      });
+      p = new Promise(function (resolve, reject) {
+        rs = resolve
+        rj = reject
+      })
     }
     this.next(0, value, ctxt || {}, cb)
 
-    return p;
+    return p
   }
 
   next (step, value, ctxt, cb) {
-    var self = this;
-    var segment = this.segments[step];
-    var isReadableStream = value instanceof stream.Readable;
+    var self = this
+    var segment = this.segments[step]
+    var isReadableStream = value instanceof stream.Readable
 
-    if (segment && 'stream'==segment.type) {
-      var s = segment.stream();
+    if (segment && segment.type === 'stream') {
+      var s = segment.stream()
       if (isReadableStream) {
         self.log('  ', step, '|piping to stream...')
         value.pipe(s)
       } else {
         self.log('  ', step, '!writing to stream...')
-        s.write(value);
-        s.end();
+        s.write(value)
+        s.end()
       }
-      self.next(step+1, s, ctxt, cb);
+      self.next(step + 1, s, ctxt, cb)
     } else if (isReadableStream) {
       self.log('  ', step, '@consuming readable stream...')
-      utilities.bufferStream(value, function(err, buf) {
-        self.next(step, buf, ctxt, cb);
+      utilities.bufferStream(value, function (error, buf) {
+        if (error) {
+          // FIXME write a test and correctly handle this (streams may err but continue to work?)
+        }
+        self.next(step, buf, ctxt, cb)
       })
     } else if (segment) {
-      Line.resolveSegment(segment, value, ctxt, function(error, newValue, inferredType) {
+      Line.resolveSegment(segment, value, ctxt, function (error, newValue, inferredType) {
         if (error) {
-          return cb({error, step, value, ctxt});
+          return cb({error, step, value, ctxt})
         }
         self.log('  ', step, `<${inferredType}`, newValue)
-        self.next(step+1, newValue, ctxt, cb);
+        self.next(step + 1, newValue, ctxt, cb)
       })
     } else {
-      self.log('<finished with', value);
+      self.log('<finished with', value)
       cb(null, value)
     }
   }
 
-  static resolveSegment(segment, value, ctxt, done) {
-    var ret;
-    var asyncCallback;
-    if ('async'==segment.type || 'auto'==segment.type) {
-      asyncCallback = (error, value)=> done(error, value, 'async');
+  static resolveSegment (segment, value, ctxt, done) {
+    var ret
+    var asyncCallback
+    if (segment.type === 'async' || segment.type === 'auto') {
+      asyncCallback = (error, value) => done(error, value, 'async')
     }
     try {
-      ret = segment.func.call(ctxt, value, asyncCallback);
+      ret = segment.func.call(ctxt, value, asyncCallback)
     } catch (error) {
-      return done(error);
+      return done(error)
     }
-    if (('undefined'==typeof ret && 'auto'==segment.type) || 'async'==segment.type) {
+    if ((typeof ret === 'undefined' && segment.type === 'auto') || segment.type === 'async') {
       // it was async, do nothing!
     } else if (ret instanceof Promise) {
       ret
-      .then((newValue)=>done(null, newValue, 'promise'))
-      .catch((error)=> done(error))
+      .then((newValue) => done(null, newValue, 'promise'))
+      .catch((error) => done(error))
     } else {
-      done(null, ret, 'sync');
+      done(null, ret, 'sync')
     }
   }
 
-  log() {}
+  log () {}
 }
 
 module.exports = Line;
 
-((/^line(:|$)/).test(process.env.DEBUG)) && require('./debug');
+/* jshint ignore:start */
+((/^line(:|$)/).test(process.env.DEBUG)) && require('./debug')
+/* jshint ignore:end */

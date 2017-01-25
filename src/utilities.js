@@ -1,33 +1,34 @@
-var utilities = {};
+'use strict'
+var utilities = {}
 
-utilities.bufferStream = function(stream, done) {
-  var buf;
-  stream.on('data', function(data) {
+utilities.bufferStream = function (stream, done) {
+  var buf
+  stream.on('data', function (data) {
     if (!buf) {
-      buf = Buffer.from(data);
+      buf = Buffer.from(data)
     } else {
-      buf = Buffer.concat([buf, data]);
+      buf = Buffer.concat([buf, data])
     }
   })
-  stream.on('end', function() {
+  stream.on('end', function () {
     done(null, buf)
   })
 }
-utilities.segmentType = function(segment) {
-  if (segment.type) return segment.type;
+utilities.segmentType = function (segment) {
+  if (segment.type) return segment.type
   // TODO infer from function name(){}
   for (var type of ['stream', 'sync', 'async', 'promise']) {
-    if ('undefined'!=typeof segment[type]) return type;
+    if (typeof segment[type] !== 'undefined') return type
   }
-  return 'auto';
+  return 'auto'
 }
-utilities.expandSegment = function(segment) {
-  if ('function'==typeof segment) {
+utilities.expandSegment = function (segment) {
+  if (typeof segment === 'function') {
     segment = {
       func: segment
-    };
+    }
   }
   segment.type = utilities.segmentType(segment)
-  return segment;
+  return segment
 }
-module.exports = utilities;
+module.exports = utilities
