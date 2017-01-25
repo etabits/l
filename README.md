@@ -58,8 +58,7 @@ npm test
 ```
 
 ## Compatibility
-* Line is compatible with [Node.js v6 LTS](https://nodejs.org/en/download/) and [Node.js v7 Current](https://nodejs.org/en/download/current/)
-* Half the tests fail when using Node.js v5 and v4!
+* Line is compatible with [Node.js v6 LTS](https://nodejs.org/en/download/), [Node.js v7 Current](https://nodejs.org/en/download/current/), Node.js v5 and Node.js v4
 
 ## Next (Roadmap)
 * Ability to split and rejoin a stream (parallel execution)
