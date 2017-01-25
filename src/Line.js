@@ -14,7 +14,7 @@ class Line {
       cb = ctxt;
       ctxt = {};
     }
-    this.log('executing on', value)
+    this.log('>executing on:', value, `(${this.segments.length} segments)`)
     var p;
     if (!cb) {
       var resolve, reject;
@@ -38,55 +38,35 @@ class Line {
   next (step, value, ctxt, cb) {
     var self = this;
     var segment = this.segments[step];
-    if (!segment) {
-      self.log('finished!', value);
-      cb(null, value)
-      return;
-    }
     var isReadableStream = value instanceof stream.Readable;
-    self.log(step, segment.name || 'anon', value);
-    if ('stream'==segment.type) {
-      var firstStream, lastStream;
-      for (var streamsEnd = step;
-        this.segments[streamsEnd] && this.segments[streamsEnd].stream;
-        ++streamsEnd) {
-        var streamSegment = this.segments[streamsEnd];
-        var currentStream = streamSegment.stream();
-        if (!firstStream) {
-          firstStream = currentStream;
-        } else {
-          lastStream.pipe(currentStream);
-          self.log('found another stream at', streamsEnd, 'name=', streamSegment.name)
-        }
-        lastStream = currentStream;
-      }
 
-      utilities.bufferStream(lastStream, function(err, buf) {
-        self.log('\tstream end', buf.toString('hex'));
-        self.next(streamsEnd, buf, ctxt, cb);
-      })
-
+    if (segment && 'stream'==segment.type) {
+      var s = segment.stream();
       if (isReadableStream) {
-        value.pipe(firstStream)
+        self.log('  ', step, '|piping to stream...')
+        value.pipe(s)
       } else {
-        firstStream.write(value);
-        firstStream.end();
+        self.log('  ', step, '!writing to stream...')
+        s.write(value);
+        s.end();
       }
-    } else {
-      if (isReadableStream) {
-        utilities.bufferStream(value, function(err, buf) {
-          self.next(step, buf, ctxt, cb);
-        })
-        return;
-      }
+      self.next(step+1, s, ctxt, cb);
+    } else if (isReadableStream) {
+      self.log('  ', step, '@consuming readable stream...')
+      utilities.bufferStream(value, function(err, buf) {
+        self.next(step, buf, ctxt, cb);
+      })
+    } else if (segment) {
       Line.resolveSegment(segment, value, ctxt, function(error, newValue, inferredType) {
         if (error) {
           return cb({error, step, value, ctxt});
         }
-        self.log(`\t${inferredType} ret`, newValue)
+        self.log('  ', step, `<${inferredType}`, newValue)
         self.next(step+1, newValue, ctxt, cb);
-
       })
+    } else {
+      self.log('<finished with', value);
+      cb(null, value)
     }
   }
 

@@ -53,3 +53,13 @@ test('as returned from first call, followed by a stream', t => {
     t.is(result.toString('hex'), 'c84db234afc178eb3ef393b8a7aacc598131eb09');
   })
 });
+
+test('as returned from first call, followed by nothing', t => {
+  t.plan(1);
+  const l = new Line([
+    ()=> Promise.resolve(fs.createReadStream(fname, {start: 0, end: 13})),
+  ]);
+  return l.execute().then(function (result) {
+    t.is(result.toString(), "'use strict';\n");
+  })
+});
