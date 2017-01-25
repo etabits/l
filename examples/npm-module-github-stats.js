@@ -43,14 +43,17 @@ if (!packages.length) {
   packages = ['express', 'gulp', 'request'];
 }
 for (let pkg of packages) {
-  l.execute(pkg)
-  .then(function (info) {
-    console.log(`Package [${info.npm.name}](${info.npm.homepage}): ${info.npm.description}\n`,
-      `Has ${Object.keys(info.npm.users).length} users, as reported by npm\n`,
-      `Has ${info.gh.stargazers_count} stargazers, ${info.gh.subscribers_count} watchers,`,
-      `${info.gh.forks} forks and ${info.gh.open_issues} open issues\n`);
-  })
-  .catch(function (error) {
-    console.log('Problem retrieving info for package', pkg)
-  })
+  l.execute(pkg).then(printer).catch(dog)
+}
+function printer(info) {
+  console.log(`Package [${info.npm.name}](${info.npm.homepage}): ${info.npm.description}\n`,
+    `Has ${Object.keys(info.npm.users).length} users, as reported by npm\n`,
+    `Has ${info.gh.stargazers_count} stargazers, ${info.gh.subscribers_count} watchers,`,
+    `${info.gh.forks} forks and ${info.gh.open_issues} open issues\n`);
+}
+function dog(info) {
+  console.log(`Package [${info.npm.name}](${info.npm.homepage}): ${info.npm.description}\n`,
+    `Has ${Object.keys(info.npm.users).length} users, as reported by npm\n`,
+    `Has ${info.gh.stargazers_count} stargazers, ${info.gh.subscribers_count} watchers,`,
+    `${info.gh.forks} forks and ${info.gh.open_issues} open issues\n`);
 }
