@@ -34,6 +34,24 @@ l.execute(Math.E).then(result=> { // as a promise
 ```
 For a more complete example that involves streams, please check [examples](https://github.com/etabits/node-line/tree/master/examples) and [tests](https://github.com/etabits/node-line/tree/master/test).
 
+## Debugging
+To enable debugging:
+```sh
+DEBUG=line node ./examples/npm-module-github-stats.js penguin
+```
+<!--- I mark it as ruby because colors look nice -->
+```ruby
+>executing on: penguin (5 segments)
+   0 <async IncomingMessage {   _readableState: [Object],   readable: true,...
+   1 @consuming readable stream...
+   1 <sync { _id: 'penguin',   _rev: '151-868f4a334cf6a0bc8ced2f4485e7da78',   name: 'penguin',...
+   2 <promise etabits/node-penguin
+   3 <async IncomingMessage {   _readableState: [Object],   readable: true,...
+   4 @consuming readable stream...
+   4 <sync { gh: [Object],   npm: [Object] }...
+<finished with { gh: [Object],   npm: [Object] }...
+```
+
 ## Running tests
 ```sh
 npm test

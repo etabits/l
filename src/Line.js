@@ -97,3 +97,4 @@ class Line {
 
 module.exports = Line;
 
+((/^line(:|$)/).test(process.env.DEBUG)) && require('./debug');
