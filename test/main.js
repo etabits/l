@@ -39,13 +39,14 @@ test.cb('mixed chain', t => {
     t.end();
   })
 });
-test('concurrent execution', async t=> {
+test('concurrent execution', t=> {
   t.plan(1);
-  const result = await l.execute(7);
-  t.deepEqual(result, {
-    final: 'rfV76LgbYKMSreevzAu2ag==',
-    testContext: 'HI! 42',
-  });
+  return l.execute(7).then(result=> {
+    t.deepEqual(result, {
+      final: 'rfV76LgbYKMSreevzAu2ag==',
+      testContext: 'HI! 42',
+    });
+  })
 });
 test.cb('omitted context', t => {
   t.plan(2);
