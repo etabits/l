@@ -86,7 +86,8 @@ class Line {
     }
     if ((typeof ret === 'undefined' && segment.type === 'auto') || segment.type === 'async') {
       // it was async, do nothing!
-    } else if (ret instanceof Promise) {
+    } else if (ret instanceof Promise ||
+      (ret && typeof ret.then === 'function' && typeof ret.catch === 'function')) {
       ret
       .then((newValue) => done(null, newValue, 'promise'))
       .catch((error) => done(error))
