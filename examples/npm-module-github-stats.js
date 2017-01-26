@@ -3,9 +3,9 @@
 // Example: node examples/npm-module-github-stats.js express penguin mongoose
 const https = require('https')
 
-const Line = require('../')
+const line = require('../')
 
-var l = new Line([
+var l = line([
   // Request package info from npmjs (async, returns a readable stream)
   function (pkg, done) {
     https.get(`https://registry.npmjs.com/${pkg}`, (res) => done(null, res))
@@ -40,10 +40,10 @@ var l = new Line([
 
 var packages = process.argv.slice(2)
 if (!packages.length) {
-  packages = ['express', 'gulp', 'request']
+  packages = ['ava', 'coveralls', 'jshint', 'nyc', 'standard']
 }
 for (let pkg of packages) {
-  l.execute(pkg).then(printer).catch(dog)
+  l(pkg).then(printer).catch(dog)
 }
 function printer (info) {
   console.log(`Package [${info.npm.name}](${info.npm.homepage}): ${info.npm.description}\n`,

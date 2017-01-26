@@ -1,6 +1,7 @@
 'use strict'
 import test from 'ava'
-var Line = require('../src/Line')
+
+const Line = require('../').Line
 
 test('promise rejection', t => {
   t.plan(1)

@@ -1,7 +1,7 @@
 'use strict'
 import test from 'ava'
 
-const Line = require('../src/Line')
+const Line = require('../').Line
 
 test('async function that returns a value', t => {
   t.plan(1)

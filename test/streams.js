@@ -5,7 +5,7 @@ import test from 'ava'
 const crypto = require('crypto')
 const fs = require('fs')
 
-const Line = require('../src/Line')
+const Line = require('../').Line
 
 const fname = require('path').join(__dirname, './streams.js')
 

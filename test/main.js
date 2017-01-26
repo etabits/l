@@ -2,9 +2,9 @@
 import test from 'ava'
 const crypto = require('crypto')
 
-var Line = require('../src/Line')
+const line = require('../')
 
-var l = new Line([
+var l = line([
   (val) => val * 2,
   (val) => Promise.resolve(val * 3),
   function add4 (val, done) {
@@ -29,7 +29,7 @@ var l = new Line([
 ])
 test.cb('mixed chain', t => {
   t.plan(2)
-  l.execute(6, {preset: 'CONTEXT'}, function (err, result) {
+  l(6, {preset: 'CONTEXT'}, function (err, result) {
     t.is(err, null)
     t.deepEqual(result, {
       preset: 'CONTEXT',
@@ -41,7 +41,7 @@ test.cb('mixed chain', t => {
 })
 test('concurrent execution', t => {
   t.plan(1)
-  return l.execute(7).then(result => {
+  return l(7).then(result => {
     t.deepEqual(result, {
       final: 'rfV76LgbYKMSreevzAu2ag==',
       testContext: 'HI! 42'
@@ -50,7 +50,7 @@ test('concurrent execution', t => {
 })
 test.cb('omitted context', t => {
   t.plan(2)
-  l.execute(6, function (err, result) {
+  l(6, function (err, result) {
     t.is(err, null)
     t.deepEqual(result, {
       final: 'tXaGpbo9OuZfxOCD1qrKaA==',
