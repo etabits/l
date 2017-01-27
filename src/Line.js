@@ -41,7 +41,7 @@ class Line {
     var isReadableStream = value instanceof stream.Readable
 
     if (segment && segment.type === 'stream') {
-      var s = segment.stream()
+      var s = segment.stream.call(ctxt)
       if (isReadableStream) {
         self.log('  ', step, '|piping to stream...')
         value.pipe(s)

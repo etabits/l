@@ -19,14 +19,17 @@ test('as first argument, followed by non-stream', t => {
   })
 })
 
-test('as first argument, followed by a stream', t => {
-  t.plan(1)
+test('as first argument, followed by a stream, with a context', t => {
+  t.plan(2)
   const l = new Line([
     {
-      stream: () => crypto.createHash('sha1')
+      stream: function () {
+        t.deepEqual(this, {context: 'set'})
+        return crypto.createHash('sha1')
+      }
     }
   ])
-  return l.execute(fs.createReadStream(fname, {start: 0, end: 42})).then(function (result) {
+  return l.execute(fs.createReadStream(fname, {start: 0, end: 42}), {context: 'set'}).then(function (result) {
     t.is(result.toString('hex'), '67474c19ef8d88cb06c48d6888d2e0ce95f35bd3')
   })
 })
