@@ -14,7 +14,7 @@ class Line {
       cb = ctxt
       ctxt = {}
     }
-    this.log('>executing on:', value, `(${this.segments.length} segments)`)
+    debug('>executing on:', value, `(${this.segments.length} segments)`)
     var p
     if (!cb) {
       var rs, rj
@@ -43,16 +43,16 @@ class Line {
     if (segment && segment.$type === 'stream') {
       var s = segment.$func.call(ctxt)
       if (isReadableStream) {
-        self.log('  ', step, '|piping to stream...')
+        debug('  ', step, '|piping to stream...')
         value.pipe(s)
       } else {
-        self.log('  ', step, '!writing to stream...')
+        debug('  ', step, '!writing to stream...')
         s.write(value)
         s.end()
       }
       self.next(step + 1, s, ctxt, cb)
     } else if (isReadableStream) {
-      self.log('  ', step, '@consuming readable stream...')
+      debug('  ', step, '@consuming readable stream...')
       utilities.bufferStream(value)
       .then((buf) => self.next(step, buf, ctxt, cb))
       // FIXME write a test and correctly handle this (streams may err but continue to work?)
@@ -61,14 +61,14 @@ class Line {
       var meta = {}
       Line.resolveSegment(segment, value, ctxt, meta)
       .then(function (value) {
-        self.log('  ', step, `<${meta.inferredType}`, value)
+        debug('  ', step, `<${meta.inferredType}`, value)
         self.next(step + 1, value, ctxt, cb)
       })
       .catch(function (error) {
         return cb({error, step, value, ctxt})
       })
     } else {
-      self.log('<finished with', value)
+      debug('<finished with', value)
       cb(null, value)
     }
   }
@@ -97,8 +97,10 @@ class Line {
       return Promise.all(promises).then(function (results) {
         var all = {}
         for (var i = 0; i < promisesKeys.length; ++i) {
+          debug('      <', promisesKeys[i], results[i])
           all[promisesKeys[i]] = results[i]
         }
+        meta.inferredType = 'split'
         return all
       })
     }
@@ -137,12 +139,8 @@ class Line {
       return Promise.resolve(ret)
     }
   }
-
-  log () {}
 }
 
-module.exports = Line;
+module.exports = Line
 
-/* jshint ignore:start */
-((/^line(:|$)/).test(process.env.DEBUG)) && require('./debug')
-/* jshint ignore:end */
+var debug = ((/^line(:|$)/).test(process.env.DEBUG)) ? require('./debug') : () => {}

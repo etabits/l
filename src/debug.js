@@ -1,6 +1,6 @@
 'use strict'
 const util = require('util')
-require('./Line').prototype.log = function () {
+module.exports = function () {
   console.log.apply(console, Array.from(arguments).map(function (arg) {
     return (typeof arg !== 'object') ? arg : util.inspect(arg, {
       depth: 0,
