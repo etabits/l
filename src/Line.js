@@ -53,12 +53,10 @@ class Line {
       self.next(step + 1, s, ctxt, cb)
     } else if (isReadableStream) {
       self.log('  ', step, '@consuming readable stream...')
-      utilities.bufferStream(value, function (error, buf) {
-        if (error) {
-          // FIXME write a test and correctly handle this (streams may err but continue to work?)
-        }
-        self.next(step, buf, ctxt, cb)
-      })
+      utilities.bufferStream(value)
+      .then((buf) => self.next(step, buf, ctxt, cb))
+      // FIXME write a test and correctly handle this (streams may err but continue to work?)
+      .catch(cb)
     } else if (segment) {
       Line.resolveSegment(segment, value, ctxt, function (error, newValue, inferredType) {
         if (error) {

@@ -1,17 +1,20 @@
 'use strict'
 var utilities = {}
 
-utilities.bufferStream = function (stream, done) {
-  var buf
-  stream.on('data', function (data) {
-    if (!buf) {
-      buf = Buffer.from(data)
-    } else {
-      buf = Buffer.concat([buf, data])
-    }
-  })
-  stream.on('end', function () {
-    done(null, buf)
+utilities.bufferStream = function (stream) {
+  return new Promise(function (resolve, reject) {
+    var buf
+    stream.on('data', function (data) {
+      if (!buf) {
+        buf = Buffer.from(data)
+      } else {
+        buf = Buffer.concat([buf, data])
+      }
+    })
+    stream.on('end', function () {
+      resolve(buf)
+    })
+    stream.on('error', reject)
   })
 }
 utilities.segmentType = function (segment) {
