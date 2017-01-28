@@ -41,7 +41,7 @@ class Line {
     var isReadableStream = value instanceof stream.Readable
 
     if (segment && segment.$type === 'stream') {
-      var s = segment.stream.call(ctxt)
+      var s = segment.$func.call(ctxt)
       if (isReadableStream) {
         self.log('  ', step, '|piping to stream...')
         value.pipe(s)
@@ -90,7 +90,7 @@ class Line {
       }
     }
     try {
-      ret = segment.func.call(ctxt, value, asyncCallback)
+      ret = segment.$func.call(ctxt, value, asyncCallback)
     } catch (error) {
       meta.inferredType = 'sync'
       return Promise.reject(error)

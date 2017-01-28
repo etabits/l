@@ -28,10 +28,19 @@ utilities.segmentType = function (segment) {
 utilities.expandSegment = function (segment) {
   if (typeof segment === 'function') {
     segment = {
-      func: segment
+      $func: segment
     }
+  } else if (segment.func) {
+    segment.$func = segment.func
+    delete segment.func
   }
+
   segment.$type = utilities.segmentType(segment)
+  if (!segment.$func) {
+    segment.$func = segment[segment.$type]
+    delete segment[segment.$type]
+  }
+
   return segment
 }
 module.exports = utilities

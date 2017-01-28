@@ -8,16 +8,27 @@ test('utilities segment expand function', t => {
   var _s = () => {}
   var s = utilities.expandSegment(_s)
   t.is(s.$type, 'auto')
-  t.is(s.func, _s)
+  t.is(s.$func, _s)
 })
 
 test('utilities segment expand object', t => {
   t.plan(2)
   var _s = {
-    $type: 'stream',
-    func: () => {}
+    $type: 'sync',
+    $func: () => {}
+  }
+  var s = utilities.expandSegment(_s)
+  t.is(s.$type, 'sync')
+  t.is(s.$func, _s.$func)
+})
+
+test('utilities segment expand stream', t => {
+  t.plan(2)
+  var func = () => {}
+  var _s = {
+    stream: func
   }
   var s = utilities.expandSegment(_s)
   t.is(s.$type, 'stream')
-  t.is(s.func, _s.func)
+  t.is(s.$func, func)
 })
