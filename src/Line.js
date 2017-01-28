@@ -77,6 +77,32 @@ class Line {
     // This should be rewritten in a better way?
     var ret
     var asyncCallback, rs, rj
+
+    // Should let streams pipe everywhere, even through segments
+    if (segment.$type === 'split') {
+      var promises = []
+      var promisesKeys = []
+      for (var key in segment) {
+        if (key[0] === '$') continue
+        promisesKeys.push(key)
+        if (segment[key].$type === 'stream') {
+          let stream = segment[key].$func.call(ctxt)
+          stream.end(value)
+          promises.push(utilities.bufferStream(stream))
+        } else {
+          promises.push(Line.resolveSegment(segment[key], value, ctxt, {}))
+        }
+      }
+
+      return Promise.all(promises).then(function (results) {
+        var all = {}
+        for (var i = 0; i < promisesKeys.length; ++i) {
+          all[promisesKeys[i]] = results[i]
+        }
+        return all
+      })
+    }
+
     if (segment.$type === 'async' || segment.$type === 'auto') {
       asyncCallback = function (error, value) {
         process.nextTick(function () {

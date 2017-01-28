@@ -41,6 +41,14 @@ utilities.expandSegment = function (segment) {
     delete segment[segment.$type]
   }
 
+  var keys = Object.keys(segment).filter((k) => k[0] !== '$')
+  if (keys.length > 0) {
+    segment.$type = 'split'
+    for (var key of keys) {
+      segment[key] = utilities.expandSegment(segment[key])
+    }
+  }
+
   return segment
 }
 module.exports = utilities
