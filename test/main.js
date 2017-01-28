@@ -18,7 +18,6 @@ var l = line([
     stream: () => crypto.createHash('sha1')
   },
   {
-    name: 'md5sum',
     stream: () => crypto.createHash('md5')
   },
   (val) => val.toString('base64'),
