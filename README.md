@@ -21,39 +21,23 @@ npm install --save https://github.com/etabits/node-line
 const line = require('line');
 
 var l = line([
-  (val) => val * 2, // sync
-  (val) => Promise.resolve(val * 3), // promise
-  (val, done) => process.nextTick(() => done(null, val * 7)) // async
+  (val) => val * 5, // sync
+  { // Split
+    add: (val) => Promise.resolve(val + 2), // promise
+    mul: (val, done) => process.nextTick(() => done(null, val * 7)) // async
+  },
+  (composed) => composed.add + composed.mul // Join
 ])
 
 l(1, function (error, answer) { // with a callback
   require('assert').strictEqual(answer, 42)
 })
 
-l(Math.E).then(result => { // as a promise
-  console.log(result) // 114.1678367952799
+l(Math.PI).then(result => { // as a promise
+  console.log(result) // 127.66370614359172
 })
 ```
 For a more complete example that involves streams, please check [examples](https://github.com/etabits/node-line/tree/master/examples) and [tests](https://github.com/etabits/node-line/tree/master/test).
-### Alternative Method (Using objects)
-```js
-const Line = require('line').Line
-
-var l = new Line([
-  (val) => val * 2, // sync
-  (val) => Promise.resolve(val * 3), // promise
-  (val, done) => process.nextTick(() => done(null, val * 7)) // async
-])
-
-l.execute(1, function (error, answer) { // with a callback
-  require('assert').strictEqual(answer, 42)
-})
-
-l.execute(Math.E).then(result => { // as a promise
-  console.log(result) // 114.1678367952799
-})
-```
-
 
 ## Debugging
 To enable debugging:
