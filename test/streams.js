@@ -1,20 +1,20 @@
 'use strict'
-// do NOT touch first 2 lines
 import test from 'ava'
+
+const CONSTANTS = require('./_constants')
 
 const crypto = require('crypto')
 const fs = require('fs')
 
 const Line = require('../').Line
 
-const fname = require('path').join(__dirname, './streams.js')
-
 test('as first argument, followed by non-stream', t => {
   t.plan(1)
   const l = new Line([
     (contents) => contents.toString()
   ])
-  return l.execute(fs.createReadStream(fname, {start: 0, end: 42})).then(function (result) {
+  return l.execute(fs.createReadStream(CONSTANTS.FNAME, CONSTANTS.CUT))
+  .then(function (result) {
     t.is(result, "'use strict'\n// do NOT touch first 2 lines\n")
   })
 })
@@ -29,15 +29,16 @@ test('as first argument, followed by a stream, with a context', t => {
       }
     }
   ])
-  return l.execute(fs.createReadStream(fname, {start: 0, end: 42}), {context: 'set'}).then(function (result) {
-    t.is(result.toString('hex'), '67474c19ef8d88cb06c48d6888d2e0ce95f35bd3')
+  return l.execute(fs.createReadStream(CONSTANTS.FNAME, CONSTANTS.CUT), {context: 'set'})
+  .then(function (result) {
+    t.is(result.toString('hex'), CONSTANTS.SHA1)
   })
 })
 
 test('as returned from first call, followed by non-stream', t => {
   t.plan(1)
   const l = new Line([
-    (v, done) => done(null, fs.createReadStream(fname, {start: 0, end: 42})),
+    (v, done) => done(null, fs.createReadStream(CONSTANTS.FNAME, CONSTANTS.CUT)),
     (contents) => contents.toString()
   ])
   return l.execute().then(function (result) {
@@ -48,22 +49,22 @@ test('as returned from first call, followed by non-stream', t => {
 test('as returned from first call, followed by a stream', t => {
   t.plan(1)
   const l = new Line([
-    () => Promise.resolve(fs.createReadStream(fname, {start: 0, end: 42})),
+    () => Promise.resolve(fs.createReadStream(CONSTANTS.FNAME, CONSTANTS.CUT)),
     {
       stream: () => crypto.createHash('sha1')
     }
   ])
   return l.execute().then(function (result) {
-    t.is(result.toString('hex'), '67474c19ef8d88cb06c48d6888d2e0ce95f35bd3')
+    t.is(result.toString('hex'), CONSTANTS.SHA1)
   })
 })
 
 test('as returned from first call, followed by nothing', t => {
   t.plan(1)
   const l = new Line([
-    () => Promise.resolve(fs.createReadStream(fname, {start: 0, end: 42}))
+    () => Promise.resolve(fs.createReadStream(CONSTANTS.FNAME, CONSTANTS.CUT))
   ])
   return l.execute().then(function (result) {
-    t.is(result.toString(), "'use strict'\n// do NOT touch first 2 lines\n")
+    t.is(result.toString(), CONSTANTS.STR)
   })
 })
