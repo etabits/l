@@ -90,7 +90,7 @@ class Line {
           stream.end(value)
           promises.push(utilities.bufferStream(stream))
         } else {
-          promises.push(Line.resolveSegment(segment[key], value, ctxt, {}))
+          promises.push(Line.resolveSegment(segment[key], value, ctxt, {}).then(utilities.bufferIfStream))
         }
       }
 

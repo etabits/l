@@ -1,4 +1,6 @@
 'use strict'
+const stream = require('stream')
+
 var utilities = {}
 
 utilities.bufferStream = function (stream) {
@@ -16,6 +18,12 @@ utilities.bufferStream = function (stream) {
     })
     stream.on('error', reject)
   })
+}
+utilities.bufferIfStream = function (r) {
+  if (r instanceof stream.Readable) {
+    return utilities.bufferStream(r)
+  }
+  return r
 }
 utilities.segmentType = function (segment) {
   if (segment.$type) return segment.$type

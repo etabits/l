@@ -51,3 +51,17 @@ test('split into multiple streams and a non-stream and rejoin', t => {
     t.deepEqual(result, buf)
   })
 })
+
+test('buffer readable streams for splits', t => {
+  t.plan(1)
+  const l = new Line([
+    {
+      file: () => Promise.resolve(fs.createReadStream(CONSTANTS.FNAME, CONSTANTS.CUT))
+    }
+  ])
+  return l.execute().then(function (result) {
+    t.deepEqual(result, {
+      file: Buffer.from(CONSTANTS.STR)
+    })
+  })
+})
