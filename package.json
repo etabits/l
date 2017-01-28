@@ -1,6 +1,6 @@
 {
   "name": "line",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Mix Async/Sync code with Promises and Streams in a reusable unified line",
   "main": "index.js",
   "directories": {
