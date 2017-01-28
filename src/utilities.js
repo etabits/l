@@ -18,7 +18,7 @@ utilities.bufferStream = function (stream) {
   })
 }
 utilities.segmentType = function (segment) {
-  if (segment.type) return segment.type
+  if (segment.$type) return segment.$type
   // TODO infer from function name(){}
   for (var type of ['stream', 'sync', 'async', 'promise']) {
     if (typeof segment[type] !== 'undefined') return type
@@ -31,7 +31,7 @@ utilities.expandSegment = function (segment) {
       func: segment
     }
   }
-  segment.type = utilities.segmentType(segment)
+  segment.$type = utilities.segmentType(segment)
   return segment
 }
 module.exports = utilities

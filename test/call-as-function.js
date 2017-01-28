@@ -7,7 +7,7 @@ test('call as function', t => {
   t.plan(1)
   const l = line([
     {
-      type: 'async',
+      $type: 'async',
       func: (value, done) => setTimeout(() => done(null, value * 3), 1)
     },
     (val) => Promise.resolve(val * 2),

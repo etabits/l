@@ -5,9 +5,9 @@ const utilities = require('../src/utilities')
 
 test('utilities segment type by type property', t => {
   t.plan(3)
-  t.is(utilities.segmentType({type: 'promise', stream: 'something'}), 'promise')
-  t.is(utilities.segmentType({type: 'stream', promise: 'something'}), 'stream')
-  t.is(utilities.segmentType({type: 'sync'}), 'sync')
+  t.is(utilities.segmentType({$type: 'promise', stream: 'something'}), 'promise')
+  t.is(utilities.segmentType({$type: 'stream', promise: 'something'}), 'stream')
+  t.is(utilities.segmentType({$type: 'sync'}), 'sync')
 })
 test('utilities segment type inferred', t => {
   t.plan(4)

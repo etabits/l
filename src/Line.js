@@ -40,7 +40,7 @@ class Line {
     var segment = this.segments[step]
     var isReadableStream = value instanceof stream.Readable
 
-    if (segment && segment.type === 'stream') {
+    if (segment && segment.$type === 'stream') {
       var s = segment.stream.call(ctxt)
       if (isReadableStream) {
         self.log('  ', step, '|piping to stream...')
@@ -77,7 +77,7 @@ class Line {
     // This should be rewritten in a better way?
     var ret
     var asyncCallback, rs, rj
-    if (segment.type === 'async' || segment.type === 'auto') {
+    if (segment.$type === 'async' || segment.$type === 'auto') {
       asyncCallback = function (error, value) {
         process.nextTick(function () {
           // Give a chance for rs and rj to be set in case it is directly called
@@ -95,7 +95,7 @@ class Line {
       meta.inferredType = 'sync'
       return Promise.reject(error)
     }
-    if ((typeof ret === 'undefined' && segment.type === 'auto') || segment.type === 'async') {
+    if ((typeof ret === 'undefined' && segment.$type === 'auto') || segment.$type === 'async') {
       // I guess there is a better way to do this along with the above asyncCallback...
       meta.inferredType = 'async'
       return new Promise(function (resolve, reject) {
