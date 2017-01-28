@@ -58,12 +58,14 @@ class Line {
       // FIXME write a test and correctly handle this (streams may err but continue to work?)
       .catch(cb)
     } else if (segment) {
-      Line.resolveSegment(segment, value, ctxt, function (error, newValue, inferredType) {
-        if (error) {
-          return cb({error, step, value, ctxt})
-        }
-        self.log('  ', step, `<${inferredType}`, newValue)
-        self.next(step + 1, newValue, ctxt, cb)
+      var meta = {}
+      Line.resolveSegment(segment, value, ctxt, meta)
+      .then(function (value) {
+        self.log('  ', step, `<${meta.inferredType}`, value)
+        self.next(step + 1, value, ctxt, cb)
+      })
+      .catch(function (error) {
+        return cb({error, step, value, ctxt})
       })
     } else {
       self.log('<finished with', value)
@@ -71,26 +73,42 @@ class Line {
     }
   }
 
-  static resolveSegment (segment, value, ctxt, done) {
+  static resolveSegment (segment, value, ctxt, meta) {
+    // This should be rewritten in a better way?
     var ret
-    var asyncCallback
+    var asyncCallback, rs, rj
     if (segment.type === 'async' || segment.type === 'auto') {
-      asyncCallback = (error, value) => done(error, value, 'async')
+      asyncCallback = function (error, value) {
+        process.nextTick(function () {
+          // Give a chance for rs and rj to be set in case it is directly called
+          // Test: main/calling done immediately inside segment
+          if (error) {
+            return rj(error)
+          }
+          rs(value)
+        })
+      }
     }
     try {
       ret = segment.func.call(ctxt, value, asyncCallback)
     } catch (error) {
-      return done(error)
+      meta.inferredType = 'sync'
+      return Promise.reject(error)
     }
     if ((typeof ret === 'undefined' && segment.type === 'auto') || segment.type === 'async') {
-      // it was async, do nothing!
+      // I guess there is a better way to do this along with the above asyncCallback...
+      meta.inferredType = 'async'
+      return new Promise(function (resolve, reject) {
+        rs = resolve
+        rj = reject
+      })
     } else if (ret instanceof Promise ||
       (ret && typeof ret.then === 'function' && typeof ret.catch === 'function')) {
-      ret
-      .then((newValue) => done(null, newValue, 'promise'))
-      .catch((error) => done(error))
+      meta.inferredType = 'promise'
+      return ret
     } else {
-      done(null, ret, 'sync')
+      meta.inferredType = 'sync'
+      return Promise.resolve(ret)
     }
   }
 

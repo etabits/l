@@ -59,3 +59,27 @@ test.cb('omitted context', t => {
     t.end()
   })
 })
+
+test('calling done immediately inside segment', t => {
+  t.plan(1)
+  const l = line([
+    (v, done) => done(null, v + 1),
+    (contents) => contents.toString()
+  ])
+  return l(2).then(function (result) {
+    t.is(result, '3')
+  })
+})
+
+test.cb('calling done immediately', t => {
+  t.plan(2)
+  const l = line([
+    (v) => v + 1,
+    (contents) => contents.toString()
+  ])
+  l(2, function (error, result) {
+    t.is(error, null)
+    t.is(result, '3')
+    t.end()
+  })
+})
