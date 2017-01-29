@@ -68,3 +68,17 @@ test('as returned from first call, followed by nothing', t => {
     t.is(result.toString(), CONSTANTS.STR)
   })
 })
+
+test.skip('1mb file split in two', t => {
+  // This only works on linux
+  const l = new Line([{
+    sha1sum: {stream: () => crypto.createHash('sha1')},
+    md5sum: {stream: () => crypto.createHash('md5')}
+  }])
+  return l.execute(fs.createReadStream('/dev/zero', {start: 1, end: 1024 * 1024})).then(function (result) {
+    t.deepEqual(result, {
+      sha1sum: Buffer.from('3b71f43ff30f4b15b5cd85dd9e95ebc7e84eb5a3', 'hex'),
+      md5sum: Buffer.from('b6d81b360a5672d80c27430f39153e2c', 'hex')
+    })
+  })
+})
