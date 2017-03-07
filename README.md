@@ -20,7 +20,7 @@ npm install --save l
 ```js
 const l = require('l');
 
-var line = l([
+var calc = l([
   (val) => val * 5, // sync
   { // Split
     add: (val) => Promise.resolve(val + 2), // promise
@@ -29,11 +29,11 @@ var line = l([
   (composed) => composed.add + composed.mul // Join
 ])
 
-l(1, function (error, answer) { // with a callback
+calc(1, function (error, answer) { // with a callback
   require('assert').strictEqual(answer, 42)
 })
 
-l(Math.PI).then(result => { // as a promise
+calc(Math.PI).then(result => { // as a promise
   console.log(result) // 127.66370614359172
 })
 ```
