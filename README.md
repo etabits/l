@@ -1,14 +1,14 @@
-# node-line
+# L
 > Mix Async/Sync code with Promises and Streams in a reusable unified line
 
-[![Build Status](https://travis-ci.org/etabits/node-line.svg?branch=master)](https://travis-ci.org/etabits/node-line)
-[![Coverage Status](https://coveralls.io/repos/github/etabits/node-line/badge.svg?branch=master)](https://coveralls.io/github/etabits/node-line?branch=master)
+[![Build Status](https://travis-ci.org/etabits/l.svg?branch=master)](https://travis-ci.org/etabits/l)
+[![Coverage Status](https://coveralls.io/repos/github/etabits/l/badge.svg?branch=master)](https://coveralls.io/github/etabits/l?branch=master)
 
 You have multiple functions, some of them are **async**, others are **promise**-based, and you have some **stream** transformers, and you want to plug everything together: This module **takes an array of functions/streams and gives you a single function**, that can be used with callback, or as a promise. It takes care of piping consecutive streams, buffering them before passing them to the next function... etc.
 
 ## Installation
 ```sh
-npm install --save https://github.com/etabits/node-line
+npm install --save l
 ```
 
 ## Features
@@ -18,9 +18,9 @@ npm install --save https://github.com/etabits/node-line
 
 ## Usage Example
 ```js
-const line = require('line');
+const l = require('l');
 
-var l = line([
+var line = l([
   (val) => val * 5, // sync
   { // Split
     add: (val) => Promise.resolve(val + 2), // promise
@@ -37,7 +37,7 @@ l(Math.PI).then(result => { // as a promise
   console.log(result) // 127.66370614359172
 })
 ```
-For a more complete example that involves streams, please check [examples](https://github.com/etabits/node-line/tree/master/examples) and [tests](https://github.com/etabits/node-line/tree/master/test).
+For a more complete example that involves streams, please check [examples](https://github.com/etabits/l/tree/master/examples) and [tests](https://github.com/etabits/l/tree/master/test).
 
 ## Debugging
 To enable debugging:
@@ -63,7 +63,7 @@ npm test
 ```
 
 ## Compatibility
-* Line is compatible with [Node.js v6 LTS](https://nodejs.org/en/download/), [Node.js v7 Current](https://nodejs.org/en/download/current/), Node.js v5 and Node.js v4
+* L is compatible with [Node.js v6 LTS](https://nodejs.org/en/download/), [Node.js v7 Current](https://nodejs.org/en/download/current/), Node.js v5 and Node.js v4
 
 ## Next (Roadmap)
 * Ability to split and rejoin a stream (parallel execution)
