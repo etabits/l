@@ -70,4 +70,6 @@ npm test
 * Return a readable stream when last element is a stream (optional)
 * Syntactic sugar, once uses cases are established, so we have a stable API
 * Browser use?
+* objectMode streams between segments
+* create objectMode stream duplex instead of a function wrapper
 * ...
