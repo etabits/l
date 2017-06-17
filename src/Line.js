@@ -9,12 +9,18 @@ class Line {
     this.segments = segments.map(utilities.expandSegment)
   }
 
-  execute (value, ctxt, cb) {
-    if (typeof ctxt === 'function') {
-      cb = ctxt
+  execute () {
+    var args = Array.from(arguments)
+    var ctxt, cb
+    if (args.length > 0 && typeof args[args.length - 1] === 'function') {
+      cb = args.pop()
+    }
+    if (args.length > 1 && typeof args[args.length - 1] === 'object') {
+      ctxt = args.pop()
+    } else {
       ctxt = {}
     }
-    debug('>executing on:', value, `(${this.segments.length} segments)`)
+    debug('>executing on:', args, `(${this.segments.length} segments)`)
     var p
     if (!cb) {
       var rs, rj
@@ -30,14 +36,15 @@ class Line {
         rj = reject
       })
     }
-    this.next(0, value, ctxt || {}, cb)
+    this.next(0, args, ctxt || {}, cb)
 
     return p
   }
 
-  next (step, value, ctxt, cb) {
+  next (step, args, ctxt, cb) {
     var self = this
     var segment = this.segments[step]
+    var value = args[0]
     var isReadableStream = value instanceof stream.Readable
 
     if (segment && segment.$type === 'stream') {
@@ -50,16 +57,16 @@ class Line {
         s.write(value)
         s.end()
       }
-      self.next(step + 1, s, ctxt, cb)
+      self.next(step + 1, [s], ctxt, cb)
     } else if (isReadableStream) {
       debug('  ', step, '@consuming readable stream...')
       utilities.bufferStream(value)
-      .then((buf) => self.next(step, buf, ctxt, cb))
+      .then((buf) => self.next(step, [buf], ctxt, cb))
       // FIXME write a test and correctly handle this (streams may err but continue to work?)
       .catch(cb)
     } else if (segment) {
       var meta = {}
-      Line.resolveSegment(segment, value, ctxt, meta)
+      Line.resolveSegment(segment, args, ctxt, meta)
       .then(function (value) {
         debug('  ', step, `<${meta.inferredType}`, value)
         self.next(step + 1, value, ctxt, cb)
@@ -68,12 +75,12 @@ class Line {
         return cb({error, step, value, ctxt})
       })
     } else {
-      debug('<finished with', value)
-      cb(null, value)
+      debug('<finished with', args)
+      cb.apply(null, [null].concat(args))
     }
   }
 
-  static resolveSegment (segment, value, ctxt, meta) {
+  static resolveSegment (segment, args, ctxt, meta) {
     // This should be rewritten in a better way?
     var ret
     var asyncCallback, rs, rj
@@ -87,10 +94,12 @@ class Line {
         promisesKeys.push(key)
         if (segment[key].$type === 'stream') {
           let stream = segment[key].$func.call(ctxt)
-          stream.end(value)
+          stream.end(args[0])
           promises.push(utilities.bufferStream(stream))
         } else {
-          promises.push(Line.resolveSegment(segment[key], value, ctxt, {}).then(utilities.bufferIfStream))
+          promises.push(Line.resolveSegment(segment[key], args, ctxt, {})
+            .then((r) => r[0])
+            .then(utilities.bufferIfStream))
         }
       }
 
@@ -101,24 +110,25 @@ class Line {
           all[promisesKeys[i]] = results[i]
         }
         meta.inferredType = 'split'
-        return all
+        return [all]
       })
     }
 
     if (segment.$type === 'async' || segment.$type === 'auto') {
       asyncCallback = function (error, value) {
+        var args = Array.from(arguments)
         process.nextTick(function () {
           // Give a chance for rs and rj to be set in case it is directly called
           // Test: main/calling done immediately inside segment
           if (error) {
             return rj(error)
           }
-          rs(value)
+          rs(args.slice(1))
         })
       }
     }
     try {
-      ret = segment.$func.call(ctxt, value, asyncCallback)
+      ret = segment.$func.apply(ctxt, args.concat(asyncCallback))
     } catch (error) {
       meta.inferredType = 'sync'
       return Promise.reject(error)
@@ -133,10 +143,10 @@ class Line {
     } else if (ret instanceof Promise ||
       (ret && typeof ret.then === 'function' && typeof ret.catch === 'function')) {
       meta.inferredType = 'promise'
-      return ret
+      return ret.then((res) => [res])
     } else {
       meta.inferredType = 'sync'
-      return Promise.resolve(ret)
+      return Promise.resolve([ret])
     }
   }
 }

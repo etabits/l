@@ -38,7 +38,7 @@ test('as first argument, followed by a stream, with a context', t => {
 test('as returned from first call, followed by non-stream', t => {
   t.plan(1)
   const l = new Line([
-    (v, done) => done(null, fs.createReadStream(CONSTANTS.FNAME, CONSTANTS.CUT)),
+    (done) => done(null, fs.createReadStream(CONSTANTS.FNAME, CONSTANTS.CUT)),
     (contents) => contents.toString()
   ])
   return l.execute().then(function (result) {
