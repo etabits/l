@@ -24,13 +24,13 @@ test('all sync', t => {
     },
     (composed) => composed.add + composed.mul // Join
   ])
-  t.plan(2)
+  t.plan(3)
   calc(1, function (error, answer) {
-    console.error(error)
+    t.is(error, null)
     t.is(answer, 42)
   })
 
   return calc(Math.PI).then(result => {
     t.is(result, 127.66370614359172)
-  }).catch(console.error)
+  })
 })
