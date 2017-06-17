@@ -11,7 +11,7 @@ test('promise rejection', t => {
     (val) => Promise.reject(val * 7)
   ])
   return l.execute(1).catch((reason) => {
-    t.deepEqual(reason, {
+    t.deepEqual(Object.assign({}, reason), {
       step: 2,
       value: 6,
       error: 42,
@@ -32,7 +32,7 @@ test('catchable error', t => {
     t.is(reason.step, 1)
     t.is(reason.value, 3)
     t.deepEqual(reason.ctxt, {})
-    t.true(reason.error instanceof ReferenceError)
+    t.true(reason instanceof ReferenceError)
   })
 })
 

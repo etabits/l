@@ -72,7 +72,11 @@ class Line {
         self.next(step + 1, value, ctxt, cb)
       })
       .catch(function (error) {
-        return cb({error, step, value, ctxt})
+        if (!(error instanceof Error)) {
+          error = Object.assign(new Error(error), {error})
+        }
+        Object.assign(error, {step, value, ctxt})
+        return cb(error)
       })
     } else {
       debug('<finished with', args)
