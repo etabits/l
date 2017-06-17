@@ -7,6 +7,7 @@ const crypto = require('crypto')
 const fs = require('fs')
 
 const Line = require('../src/Line')
+const l = require('../')
 
 test('split into multiple streams and a non-stream', t => {
   t.plan(1)
@@ -62,6 +63,26 @@ test('buffer readable streams for splits', t => {
   return l.execute().then(function (result) {
     t.deepEqual(result, {
       file: Buffer.from(CONSTANTS.STR)
+    })
+  })
+})
+
+test('promise as split value', t => {
+  return l([{
+    three: Promise.resolve(3),
+    four: new Promise(function (resolve) {
+      setTimeout(function () {
+        resolve(4)
+      }, 1)
+    }),
+    five: () => 5,
+    six: (done) => done(null, 6)
+  }])().then(result => {
+    t.deepEqual(result, {
+      three: 3,
+      four: 4,
+      five: 5,
+      six: 6
     })
   })
 })

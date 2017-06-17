@@ -100,6 +100,8 @@ class Line {
           let stream = segment[key].$func.call(ctxt)
           stream.end(args[0])
           promises.push(utilities.bufferStream(stream))
+        } else if (segment[key].$type === 'promise') {
+          promises.push(segment[key].$func)
         } else {
           promises.push(Line.resolveSegment(segment[key], args, ctxt, {})
             .then((r) => r[0])

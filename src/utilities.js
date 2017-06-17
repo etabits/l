@@ -38,6 +38,10 @@ utilities.expandSegment = function (segment) {
     segment = {
       $func: segment
     }
+  } else if (utilities.isPromise(segment)) {
+    segment = {
+      promise: segment
+    }
   } else if (segment.func) {
     segment.$func = segment.func
     delete segment.func
@@ -58,5 +62,8 @@ utilities.expandSegment = function (segment) {
   }
 
   return segment
+}
+utilities.isPromise = function (obj) {
+  return obj && typeof obj.then === 'function'
 }
 module.exports = utilities

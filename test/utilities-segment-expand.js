@@ -32,3 +32,10 @@ test('utilities segment expand stream', t => {
   t.is(s.$type, 'stream')
   t.is(s.$func, func)
 })
+
+test('utilities segment type expand promise', t => {
+  var _s = Promise.resolve()
+  var s = utilities.expandSegment(_s)
+  t.is(s.$type, 'promise')
+  t.is(s.$func, _s)
+})
