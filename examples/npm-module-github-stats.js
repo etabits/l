@@ -39,7 +39,7 @@ var l = line([
       // We can just return null (not undefined), without using done() callback
       // If nothing was returned (typeof == undefined), library will wait for an async callback to resolve
       // return null
-      return done()
+      return done(null, null)
     }
     // Read data from github
     var gitHubRepo = m[1].replace(/\.git$/i, '')
@@ -81,5 +81,5 @@ function printer (info) {
 }
 // error logger, just in case!
 function dog (reason) {
-  console.error(reason.error)
+  console.error(reason)
 }
