@@ -30,11 +30,11 @@
   },
   "homepage": "https://github.com/etabits/l#readme",
   "devDependencies": {
-    "ava": "^0.17.0",
+    "ava": "^0.19.1",
     "coveralls": "^2.11.15",
     "jshint": "^2.9.4",
-    "nyc": "^10.1.2",
-    "standard": "^8.6.0"
+    "nyc": "^11.0.2",
+    "standard": "^10.0.2"
   },
   "jshintConfig": {
     "asi": true,
