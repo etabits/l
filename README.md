@@ -1,4 +1,6 @@
 # L
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/etabits/l.svg)](https://greenkeeper.io/)
 > Mix Async/Sync code with Promises and Streams in a reusable unified line
 
 [![Build Status](https://travis-ci.org/etabits/l.svg?branch=master)](https://travis-ci.org/etabits/l)
